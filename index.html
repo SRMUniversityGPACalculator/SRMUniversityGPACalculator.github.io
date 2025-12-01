@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <title>SRM University GPA Calculator | Calculate SGPA & CGPA</title>
+  <base href="/" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <meta
+    name="description"
+    content="An accurate and easy-to-use tool for SRM University students to calculate their Semester GPA (SGPA) and Cumulative GPA (CGPA). Supports the official university grading system with detailed explanations."
+  />
+  <meta
+    name="keywords"
+    content="GPA calculator, SRM University, GPA calculation, SGPA, CGPA, SRM grading system, SRM GPA calculator"
+  />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+    }
+  </style>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": "How to Calculate SRM University GPA",
+      "description": "A step-by-step guide to calculating your Semester GPA (SGPA) and Cumulative GPA (CGPA) using the SRM University calculator.",
+      "step": [
+        {
+          "@type": "HowToStep",
+          "name": "Enter Previous GPA Data (Optional)",
+          "text": "If you want to calculate your updated CGPA, enter your total previous credits and previous CGPA."
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Add Current Semester Courses",
+          "text": "For each course in the current semester, click 'Add Course' and enter the number of credits and the grade you received."
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Get Your Results",
+          "text": "The calculator will automatically display your Semester GPA (SGPA) and updated Cumulative GPA (CGPA) based on the data you entered."
+        }
+      ],
+      "totalTime": "PT2M"
+    }
+  </script>
+<script type="importmap">
+{
+  "imports": {
+    "rxjs": "https://aistudiocdn.com/rxjs@^7.8.2?conditions=es2015",
+    "rxjs/operators": "https://aistudiocdn.com/rxjs@^7.8.2/operators?conditions=es2015",
+    "rxjs/ajax": "https://aistudiocdn.com/rxjs@^7.8.2/ajax?conditions=es2015",
+    "rxjs/webSocket": "https://aistudiocdn.com/rxjs@^7.8.2/webSocket?conditions=es2015",
+    "rxjs/testing": "https://aistudiocdn.com/rxjs@^7.8.2/testing?conditions=es2015",
+    "rxjs/fetch": "https://aistudiocdn.com/rxjs@^7.8.2/fetch?conditions=es2015",
+    "@angular/compiler": "https://next.esm.sh/@angular/compiler@^21.0.1?external=rxjs",
+    "@angular/platform-browser": "https://next.esm.sh/@angular/platform-browser@^21.0.1?external=rxjs",
+    "@angular/core": "https://next.esm.sh/@angular/core@^21.0.1?external=rxjs"
+  }
+}
+</script>
+</head>
+<body class="bg-gray-50">
+  <div class="min-h-screen bg-gray-50 text-gray-800">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+      <div class="container mx-auto px-4 py-6 text-center">
+        <h1 class="text-4xl font-bold text-blue-800">SRM University GPA Calculator</h1>
+        <p class="mt-2 text-lg text-gray-600">An accurate and reliable tool to easily calculate your semester and cumulative GPA.</p>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto p-4 md:p-8">
+      <!-- GPA Calculator Component -->
+      <div id="gpa-calculator-container" class="bg-white p-6 md:p-8 rounded-xl shadow-lg border border-gray-200">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          
+          <!-- Calculator Form -->
+          <div class="md:col-span-2">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 pb-2 border-b">Previous CGPA Data (Optional)</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              <div>
+                <label for="prevCredits" class="block text-sm font-medium text-gray-700 mb-1">Total Previous Credits</label>
+                <input type="number" id="prevCredits" min="0" placeholder="e.g., 120" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+              </div>
+              <div>
+                <label for="prevCGPA" class="block text-sm font-medium text-gray-700 mb-1">Previous CGPA</label>
+                <input type="number" id="prevCGPA" min="0" max="10" step="0.01" placeholder="e.g., 8.5" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+              </div>
+            </div>
+
+            <h3 class="text-xl font-bold text-gray-800 mt-6 mb-4 pb-2 border-b">Current Semester Courses</h3>
+            <div id="courses-list" class="space-y-4">
+              <!-- Course rows will be dynamically inserted here by JavaScript -->
+            </div>
+
+            <div class="mt-6 flex flex-wrap gap-4">
+              <button id="add-course-btn" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-md shadow hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                Add Course
+              </button>
+              <button id="reset-btn" class="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-md shadow hover:bg-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5M4 20h5v-5M20 4h-5v5" /></svg>
+                Reset
+              </button>
+            </div>
+          </div>
+
+          <!-- Results Display -->
+          <div class="md:col-span-1 bg-blue-50 p-6 rounded-lg border border-blue-200 flex flex-col justify-center text-center">
+            <h3 class="text-2xl font-bold text-blue-800 mb-6">Results</h3>
+            <div class="space-y-6">
+              <div>
+                <p class="text-lg text-blue-700">Semester GPA (SGPA)</p>
+                <p id="sgpa-result" class="text-5xl font-bold text-blue-900 tracking-tight">0.00</p>
+              </div>
+              <div id="cgpa-result-container" class="hidden">
+                <p class="text-lg text-blue-700">Updated CGPA</p>
+                <p id="cgpa-result" class="text-5xl font-bold text-blue-900 tracking-tight">0.00</p>
+              </div>
+            </div>
+            <div class="mt-8 pt-6 border-t border-blue-200">
+              <p class="text-sm text-gray-600">Total Credits for Current Semester:</p>
+              <p id="total-credits-result" class="text-xl font-semibold text-gray-800">0</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Extended Content Section -->
+      <div class="mt-12 space-y-8">
+        
+        <!-- Grading System -->
+        <section id="grading-system" class="bg-white p-6 rounded-lg shadow-md">
+          <h2 class="text-2xl font-bold text-blue-700 mb-4 border-b-2 border-blue-200 pb-2">SRM University Grading System</h2>
+          <p class="mb-4 text-gray-700">SRM University uses a point-based system to evaluate student performance. Each grade corresponds to a numerical value used in GPA calculation. The following table details the system:</p>
+          <div class="overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-200 text-center">
+              <thead class="bg-blue-50">
+                <tr>
+                  <th class="py-2 px-4 border-b">Grade</th>
+                  <th class="py-2 px-4 border-b">Description</th>
+                  <th class="py-2 px-4 border-b">Points</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="hover:bg-gray-50"><td class="py-2 px-4 border-b font-semibold">O</td><td class="py-2 px-4 border-b">Outstanding</td><td class="py-2 px-4 border-b">10</td></tr>
+                <tr class="hover:bg-gray-50"><td class="py-2 px-4 border-b font-semibold">A+</td><td class="py-2 px-4 border-b">Excellent</td><td class="py-2 px-4 border-b">9</td></tr>
+                <tr class="hover:bg-gray-50"><td class="py-2 px-4 border-b font-semibold">A</td><td class="py-2 px-4 border-b">Very Good</td><td class="py-2 px-4 border-b">8</td></tr>
+                <tr class="hover:bg-gray-50"><td class="py-2 px-4 border-b font-semibold">B+</td><td class="py-2 px-4 border-b">Good</td><td class="py-2 px-4 border-b">7</td></tr>
+                <tr class="hover:bg-gray-50"><td class="py-2 px-4 border-b font-semibold">B</td><td class="py-2 px-4 border-b">Above Average</td><td class="py-2 px-4 border-b">6</td></tr>
+                <tr class="hover:bg-gray-50"><td class="py-2 px-4 border-b font-semibold">C</td><td class="py-2 px-4 border-b">Average</td><td class="py-2 px-4 border-b">5</td></tr>
+                <tr class="hover:bg-gray-50"><td class="py-2 px-4 border-b font-semibold">P</td><td class="py-2 px-4 border-b">Pass</td><td class="py-2 px-4 border-b">4</td></tr>
+                <tr class="hover:bg-gray-50"><td class="py-2 px-4 border-b font-semibold text-red-600">F / Ab / I</td><td class="py-2 px-4 border-b">Fail / Absent / Incomplete</td><td class="py-2 px-4 border-b">0</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Calculation Method -->
+        <section id="calculation" class="bg-white p-6 rounded-lg shadow-md">
+          <h2 class="text-2xl font-bold text-blue-700 mb-4 border-b-2 border-blue-200 pb-2">How to Calculate Your GPA</h2>
+          <div class="space-y-4">
+            <div>
+              <h3 class="text-xl font-semibold text-gray-800">Semester GPA (SGPA)</h3>
+              <p class="text-gray-700">Calculated for each semester individually using the following formula:</p>
+              <div class="mt-2 p-4 bg-gray-100 rounded-md text-center text-lg font-mono tracking-wider">
+                SGPA = &Sigma; (Credits &times; Grade Points) / &Sigma; (Total Credits)
+              </div>
+            </div>
+            <div>
+              <h3 class="text-xl font-semibold text-gray-800">Cumulative GPA (CGPA)</h3>
+              <p class="text-gray-700">The average of your GPAs for all completed semesters. It is calculated as follows:</p>
+              <div class="mt-2 p-4 bg-gray-100 rounded-md text-center text-lg font-mono tracking-wider">
+                CGPA = &Sigma; (Total Points from All Semesters) / &Sigma; (Total Credits from All Semesters)
+              </div>
+              <p class="mt-2 text-gray-600">Our calculator simplifies this for you. Just enter your previous and current semester data to get your updated CGPA.</p>
+            </div>
+          </div>
+        </section>
+        
+        <!-- Importance of GPA -->
+        <section id="importance-gpa" class="bg-white p-6 rounded-lg shadow-md">
+          <h2 class="text-2xl font-bold text-blue-700 mb-4 border-b-2 border-blue-200 pb-2">The Importance of GPA</h2>
+          <p class="text-gray-700 mb-4">Your GPA is more than just a number; it's a key indicator of your academic performance and holds significant weight for your future professional and academic career. Key reasons why it matters:</p>
+          <ul class="list-disc list-inside space-y-2 text-gray-700">
+            <li><strong>Scholarships and Financial Aid:</strong> Many scholarships require a minimum GPA to qualify and maintain eligibility.</li>
+            <li><strong>Higher Education:</strong> Prestigious universities consider GPA a critical criterion for admission into Master's and PhD programs.</li>
+            <li><strong>Job Opportunities:</strong> Many companies, especially large corporations, view GPA as evidence of a candidate's discipline and ability to succeed.</li>
+            <li><strong>Exchange Programs and Internships:</strong> Participation in these programs is often contingent on achieving a certain GPA.</li>
+          </ul>
+        </section>
+
+        <!-- Tips for Improving GPA -->
+        <section id="tips-gpa" class="bg-white p-6 rounded-lg shadow-md">
+          <h2 class="text-2xl font-bold text-blue-700 mb-4 border-b-2 border-blue-200 pb-2">Tips for Improving Your GPA</h2>
+          <p class="text-gray-700 mb-4">Improving your GPA requires commitment and effort. Here are some effective tips:</p>
+          <ul class="list-disc list-inside space-y-2 text-gray-700">
+            <li><strong>Attend Classes Regularly:</strong> Don't miss lectures. Attendance keeps you updated and makes understanding the material easier.</li>
+            <li><strong>Time Management:</strong> Create a schedule for studying and submitting assignments, and avoid procrastination.</li>
+            <li><strong>Ask for Help:</strong> Don't hesitate to ask professors or peers when you have difficulty understanding any part of the course.</li>
+            <li><strong>Choose Your Courses Wisely:</strong> Try to balance difficult and easier courses each semester.</li>
+            <li><strong>Review Periodically:</strong> Consistent review helps reinforce information and avoids cramming before exams.</li>
+          </ul>
+        </section>
+
+        <!-- FAQ Section -->
+        <section id="faq" class="bg-white p-6 rounded-lg shadow-md">
+          <h2 class="text-2xl font-bold text-blue-700 mb-4 border-b-2 border-blue-200 pb-2">Frequently Asked Questions</h2>
+          <div class="space-y-4">
+            <div>
+              <h3 class="font-semibold text-gray-800">Q: How is a 'W' (Withdrawal) grade handled?</h3>
+              <p class="text-gray-700">A: A Withdrawal ('W') grade is not included in the SGPA or CGPA calculation. Its credits are not counted in the total.</p>
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-800">Q: What about non-credit courses?</h3>
+              <p class="text-gray-700">A: Courses that do not carry credit hours (like some workshops or activities) do not affect your GPA and are not included in the calculation.</p>
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-800">Q: Is this an official calculator from SRM University?</h3>
+              <p class="text-gray-700">A: No, this is a supplementary tool developed to assist students. The results are estimates, and you should always verify your GPA with your official academic records from the university.</p>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white mt-12 py-6 border-t">
+      <div class="container mx-auto px-4 text-center text-gray-500">
+        <p>&copy; 2026 SRM University GPA Calculator. Developed to help students.</p>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    (function() {
+      // --- STATE AND CONFIGURATION ---
+      const gradePoints = { O: 10, 'A+': 9, A: 8, 'B+': 7, B: 6, C: 5, P: 4, F: 0, Ab: 0, I: 0 };
+      const gradeOptions = Object.keys(gradePoints);
+      let nextCourseId = 0;
+
+      // --- DOM ELEMENT SELECTORS ---
+      const coursesListEl = document.getElementById('courses-list');
+      const addCourseBtn = document.getElementById('add-course-btn');
+      const resetBtn = document.getElementById('reset-btn');
+      const prevCreditsEl = document.getElementById('prevCredits');
+      const prevCGPAEl = document.getElementById('prevCGPA');
+      const sgpaResultEl = document.getElementById('sgpa-result');
+      const cgpaResultEl = document.getElementById('cgpa-result');
+      const cgpaResultContainerEl = document.getElementById('cgpa-result-container');
+      const totalCreditsResultEl = document.getElementById('total-credits-result');
+
+      // --- CORE LOGIC ---
+      function calculateSGPA(courses) {
+        let totalCredits = 0;
+        let totalPoints = 0;
+        courses.forEach(course => {
+          const credits = parseFloat(course.credits);
+          const grade = course.grade;
+          if (!isNaN(credits) && credits > 0 && grade && gradePoints[grade] !== undefined) {
+            totalCredits += credits;
+            totalPoints += credits * gradePoints[grade];
+          }
+        });
+        const sgpa = totalCredits === 0 ? 0 : totalPoints / totalCredits;
+        return { sgpa: parseFloat(sgpa.toFixed(2)), totalCredits };
+      }
+
+      function calculateCGPA(previousCGPA, previousCredits, currentSGPA, currentCredits) {
+        if (previousCredits === 0 && previousCGPA === 0) {
+          return currentSGPA;
+        }
+        const totalPreviousPoints = previousCGPA * previousCredits;
+        const totalCurrentPoints = currentSGPA * currentCredits;
+        const totalCredits = previousCredits + currentCredits;
+        if (totalCredits === 0) return 0;
+        const cgpa = (totalPreviousPoints + totalCurrentPoints) / totalCredits;
+        return parseFloat(cgpa.toFixed(2));
+      }
+
+      function calculateAndRenderResults() {
+        // 1. Read all course data from DOM
+        const courses = [];
+        document.querySelectorAll('.course-row').forEach(row => {
+          const credits = row.querySelector('input[type="number"]').value;
+          const grade = row.querySelector('select').value;
+          courses.push({ credits, grade });
+        });
+
+        // 2. Read previous GPA data from DOM
+        const prevCredits = parseFloat(prevCreditsEl.value) || 0;
+        const prevCGPA = parseFloat(prevCGPAEl.value) || 0;
+
+        // 3. Perform calculations
+        const { sgpa, totalCredits } = calculateSGPA(courses);
+        const hasValidPreviousData = prevCredits > 0 && prevCGPA >= 0;
+        let cgpa = sgpa;
+        if (hasValidPreviousData && totalCredits > 0) {
+          cgpa = calculateCGPA(prevCGPA, prevCredits, sgpa, totalCredits);
+        }
+
+        // 4. Update the DOM with results
+        sgpaResultEl.textContent = sgpa.toFixed(2);
+        totalCreditsResultEl.textContent = totalCredits;
+        if (hasValidPreviousData) {
+          cgpaResultEl.textContent = cgpa.toFixed(2);
+          cgpaResultContainerEl.classList.remove('hidden');
+        } else {
+          cgpaResultContainerEl.classList.add('hidden');
+        }
+      }
+      
+      // --- DOM MANIPULATION ---
+      function createCourseRow(id) {
+        const index = coursesListEl.children.length;
+        const courseRow = document.createElement('div');
+        courseRow.className = `course-row grid grid-cols-12 gap-3 items-center p-3 rounded-lg ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`;
+        courseRow.dataset.id = id;
+
+        const gradeOptionsHTML = gradeOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+
+        courseRow.innerHTML = `
+          <span class="col-span-1 text-center font-semibold text-gray-500">${index + 1}</span>
+          <div class="col-span-11 sm:col-span-5">
+            <input type="number" min="1" placeholder="Credits" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div class="col-span-11 sm:col-span-5">
+            <select class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+              <option value="" disabled selected>Select Grade</option>
+              ${gradeOptionsHTML}
+            </select>
+          </div>
+          <div class="col-span-1 flex justify-center items-center">
+            <button title="Remove Course" class="remove-course-btn text-red-500 hover:text-red-700 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+            </button>
+          </div>
+        `;
+        return courseRow;
+      }
+      
+      function updateCourseNumbers() {
+          document.querySelectorAll('.course-row').forEach((row, index) => {
+             const numberEl = row.querySelector('span:first-child');
+             if (numberEl) {
+                 numberEl.textContent = index + 1;
+             }
+             row.className = `course-row grid grid-cols-12 gap-3 items-center p-3 rounded-lg ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`;
+          });
+      }
+      
+      function addCourse() {
+        const newRow = createCourseRow(nextCourseId++);
+        coursesListEl.appendChild(newRow);
+        updateRemoveButtonVisibility();
+      }
+
+      function removeCourse(buttonEl) {
+        buttonEl.closest('.course-row').remove();
+        updateCourseNumbers();
+        updateRemoveButtonVisibility();
+        calculateAndRenderResults();
+      }
+
+      function updateRemoveButtonVisibility() {
+        const rows = document.querySelectorAll('.course-row');
+        rows.forEach(row => {
+          const removeBtnContainer = row.querySelector('.remove-course-btn').parentElement;
+          if (rows.length > 1) {
+            removeBtnContainer.style.display = 'flex';
+          } else {
+            removeBtnContainer.style.display = 'none';
+          }
+        });
+      }
+
+      function resetCalculator() {
+        coursesListEl.innerHTML = '';
+        nextCourseId = 0;
+        prevCreditsEl.value = '';
+        prevCGPAEl.value = '';
+        addCourse();
+        calculateAndRenderResults();
+      }
+
+      // --- EVENT LISTENERS ---
+      addCourseBtn.addEventListener('click', addCourse);
+      resetBtn.addEventListener('click', resetCalculator);
+      
+      // Use event delegation for dynamic elements
+      coursesListEl.addEventListener('click', function(e) {
+        const removeBtn = e.target.closest('.remove-course-btn');
+        if (removeBtn) {
+          removeCourse(removeBtn);
+        }
+      });
+
+      document.getElementById('gpa-calculator-container').addEventListener('input', function(e) {
+          if (e.target.matches('input[type="number"], select')) {
+              calculateAndRenderResults();
+          }
+      });
+
+      // --- INITIALIZATION ---
+      addCourse(); // Add the first course row on page load
+    })();
+  </script>
+</body>
+</html>
